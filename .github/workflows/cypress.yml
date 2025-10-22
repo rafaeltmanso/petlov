@@ -1,4 +1,4 @@
-name: Cypress E2E Tests Multi-Browser
+name: Cypress E2E Tests Multi-Browser (Chrome & Electron)
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,7 @@ jobs:
   chrome-tests:
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:22.16.0 # Uses Cypress Docker image with Chrome and Firefox pre-installed
+      image: cypress/browsers:22.16.0 # Uses Cypress Docker image with Chrome and Electron pre-installed
       options: --user root # Runs as root user to avoid permission issues
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     strategy:
@@ -37,47 +37,10 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  firefox-tests:
-    runs-on: ubuntu-latest
-    container:
-      image: cypress/browsers:22.16.0 # Uses Cypress Docker image with Chrome and Firefox pre-installed
-      options: --user root --shm-size=2g --security-opt seccomp=unconfined --cap-add=SYS_ADMIN # Firefox Docker security options
-    # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
-    strategy:
-      fail-fast: false
-      matrix:
-        containers: [1, 2] # Uses 2 parallel instances
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
-        
-      - name: Instalar dependências
-        run: npm install
-        
-      - name: Executar testes no Firefox
-        uses: cypress-io/github-action@v6
-        with:
-          install: false # Skip install since we already installed dependencies
-          wait-on: 'https://petlov.vercel.app'
-          browser: firefox
-          record: true
-          parallel: true
-          group: "Firefox" # Groups results by browser in Cypress Cloud
-          spec: ${{ github.event.inputs.spec }}
-          command-prefix: "xvfb-run --auto-servernum --server-args='-screen 0 1280x720x24'"
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Firefox-specific environment variables for Docker containers
-          MOZ_CRASHREPORTER_DISABLE: 1
-          MOZ_HEADLESS: 1
-          # Disable Firefox sandbox completely
-          MOZ_DISABLE_CONTENT_SANDBOX: 1
-
   electron-tests:
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:22.16.0 # Uses Cypress Docker image with Chrome and Firefox pre-installed
+      image: cypress/browsers:22.16.0 # Uses Cypress Docker image with Chrome and Electron pre-installed
       options: --user root # Runs as root user to avoid permission issues
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     strategy:
