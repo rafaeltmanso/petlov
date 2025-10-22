@@ -5,5 +5,11 @@ module.exports = {
       // implement node event listeners here
     },
     baseUrl: 'https://petlov.vercel.app',
+    // Browser launch arguments for better Docker compatibility
+    chromeWebSecurity: false,
+    firefoxGcInterval: {
+      runMode: 1,
+      openMode: null,
+    },
   },
 }

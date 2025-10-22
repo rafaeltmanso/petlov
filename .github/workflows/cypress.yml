@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: cypress/browsers:22.16.0 # Uses Cypress Docker image with Chrome and Firefox pre-installed
-      options: --user root # Runs as root user to avoid permission issues
+      options: --user root --shm-size=2g # Runs as root user and increases shared memory for Firefox
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     strategy:
       fail-fast: false
@@ -67,6 +67,9 @@ jobs:
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Firefox-specific environment variables for Docker containers
+          MOZ_CRASHREPORTER_DISABLE: 1
+          MOZ_HEADLESS: 1
 
   electron-tests:
     runs-on: ubuntu-latest
