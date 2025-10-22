@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: cypress/browsers:22.16.0 # Uses Cypress Docker image with Chrome and Firefox pre-installed
-      options: --user root --shm-size=2g # Runs as root user and increases shared memory for Firefox
+      options: --user root --shm-size=2g --security-opt seccomp=unconfined --cap-add=SYS_ADMIN # Firefox Docker security options
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     strategy:
       fail-fast: false
@@ -64,12 +64,15 @@ jobs:
           parallel: true
           group: "Firefox" # Groups results by browser in Cypress Cloud
           spec: ${{ github.event.inputs.spec }}
+          command-prefix: "xvfb-run --auto-servernum --server-args='-screen 0 1280x720x24'"
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Firefox-specific environment variables for Docker containers
           MOZ_CRASHREPORTER_DISABLE: 1
           MOZ_HEADLESS: 1
+          # Disable Firefox sandbox completely
+          MOZ_DISABLE_CONTENT_SANDBOX: 1
 
   electron-tests:
     runs-on: ubuntu-latest
